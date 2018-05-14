@@ -25,7 +25,7 @@ git_tag_exists () {
         ssh-add - <<< "${GITHUB_SSH_KEY_PRIVATE}"
     fi
     git fetch --tags "$GIT_REPO_REMOTE"
-    remote_tag="$(git ls-remote "$GIT_REPO_REMOTE" "$1")"
+    remote_tag="$(git ls-remote --exit-code --tags "$GIT_REPO_REMOTE" "refs/tags/$1")"
     remote_tag_exit="$?"
     remote_tag_count="$(echo "$remote_tag" | wc -l)"
     
@@ -35,7 +35,10 @@ git_tag_exists () {
     echo "remote_tag_count=$remote_tag_count"
     echo "remote_tag_exit=$remote_tag_exit"
     
-    if ! [ "$remote_tag_exit" != "0" ]; then
+    if [ "$remote_tag_exit" = "2" ]; then
+        # no remotes matched
+        return 1
+    elif ! [ "$remote_tag_exit" != "0" ]; then
         2>&1 echo "Error fetching git remote tag"
         return "$remote_tag_exit"
     elif [ "0" -eq "$remote_tag_count" ]; then
@@ -46,10 +49,11 @@ git_tag_exists () {
 }
 
 main () {
+    set -x
     package_version="$(cat $MONITOR_DIR/package.json | jq -r .version)"
     git_tag="$package_version"
     >&2 echo "check_npm_version git_tag=$git_tag RELEASE_BRANCH=$RELEASE_BRANCH TRAVIS_BRANCH=$TRAVIS_BRANCH TRAVIS_PULL_REQUEST_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH"
-    if git_tag_exists "$git_tag" && [ "$(git rev-parse HEAD)" != "$(git rev-parse $git_tag)" ]; then
+    if git_tag_exists "$git_tag" && [ "$(git rev-parse HEAD)" != "$(git show-ref -s refs/tags/$git_tag)" ]; then
         >&2 echo "tag=$package_version already exist. Error. Increase the package.json version to an unused git tag"
         return 1
     else
