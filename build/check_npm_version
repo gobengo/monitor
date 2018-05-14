@@ -19,6 +19,10 @@ fi
 : ${GIT_REPO_REMOTE?GIT_REPO_REMOTE is required}
 
 git_tag_exists () {
+    if [ -f "~/.ssh/github_ssh_key" ]; then
+        eval $(ssh-agent -s)
+        ssh-add ~/.ssh/github_ssh_key
+    fi
     echo "git-tag-exists 1=$1"
     echo "git-tags=$(git tag -l)"
     if [ "0" -eq "$(git ls-remote "$GIT_REPO_REMOTE" "$1" | wc -l)" ]; then
