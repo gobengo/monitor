@@ -1,3 +1,6 @@
+set -e
+set -x
+
 ENCRYPTION_LABEL=c8bf86153df9
 ENCRYPTED_KEY_VAR="encrypted_${ENCRYPTION_LABEL}_key"
 ENCRYPTED_IV_VAR="encrypted_${ENCRYPTION_LABEL}_iv"

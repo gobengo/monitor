@@ -9,7 +9,7 @@ env:
   - REPO_CONFIG_VARS=$REPO_CONFIG_DIR/vars
 
 before_install:
-- if [ -f "$REPO_CONFIG_VARS" ]; then . $REPO_CONFIG_VARS; fi
+- if [ -f "$REPO_CONFIG_VARS" ]; then . "$REPO_CONFIG_VARS"; fi
 - ./build/travis/git_configure
 
 script:
