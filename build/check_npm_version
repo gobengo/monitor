@@ -16,10 +16,12 @@ if [ -z "$MONITOR_DIR" ]; then
     exit 1
 fi
 
+: ${GIT_REPO_REMOTE?GIT_REPO_REMOTE is required}
+
 git_tag_exists () {
     echo "git-tag-exists 1=$1"
     echo "git-tags=$(git tag -l)"
-    if [ "0" -eq "$(git tag -l | grep "$1" | wc -l)" ]; then
+    if [ "0" -eq "$(git ls-remote "$GIT_REPO_REMOTE" "$1" | wc -l)" ]; then
         return 1
     else
         return 0
