@@ -6,7 +6,7 @@ env:
   - RELEASE_BRANCH=release
   - BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
   - ENCRYPTION_LABEL=c8bf86153df9
-  - DEPLOY_REPO=https://github.com/gobengo/monitor.git
+  - DEPLOY_REPO=https://github.com/sudomesh/monitor.git
 before_install:
 - REPO=`git config remote.origin.url`
 # Decrypt travis secret for ssh private key
@@ -14,9 +14,10 @@ before_install:
 - ENCRYPTED_IV_VAR="encrypted_${ENCRYPTION_LABEL}_iv"
 - ENCRYPTED_KEY=${!ENCRYPTED_KEY_VAR}
 - ENCRYPTED_IV=${!ENCRYPTED_IV_VAR}
+- TRAVIS_CI_DEPLOY_KEY=sudomesh_monitor_travis-ci.enc
 - mkdir -p ~/.ssh
 - openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV
-  -in sudomesh-travis-ci.enc -out ~/.ssh/sudomesh-travis-ci -d
+  -in "$TRAVIS_CI_DEPLOY_KEY" -out ~/.ssh/sudomesh-travis-ci -d
 - chmod 600 ~/.ssh/sudomesh-travis-ci
 - eval $(ssh-agent -s)
 - ssh-add ~/.ssh/sudomesh-travis-ci
