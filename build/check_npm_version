@@ -19,13 +19,25 @@ fi
 : ${GIT_REPO_REMOTE?GIT_REPO_REMOTE is required}
 
 git_tag_exists () {
-    if [ -f "~/.ssh/github_ssh_key" ]; then
+    if ! [ -z "$GITHUB_SSH_KEY_PRIVATE" ]; then
+        echo "ssh-add GITHUB_SSH_KEY_PRIVATE"
         eval $(ssh-agent -s)
-        ssh-add ~/.ssh/github_ssh_key
+        ssh-add - <<< "${GITHUB_SSH_KEY_PRIVATE}"
     fi
+    remote_tag="$(git ls-remote "$GIT_REPO_REMOTE" "$1")"
+    remote_tag_exit="$?"
+    remote_tag_count="$(echo "$remote_tag" | wc -l)"
+    
     echo "git-tag-exists 1=$1"
     echo "git-tags=$(git tag -l)"
-    if [ "0" -eq "$(git ls-remote "$GIT_REPO_REMOTE" "$1" | wc -l)" ]; then
+    echo "remote_tag=$remote_tag"
+    echo "remote_tag_count=$remote_tag_count"
+    echo "remote_tag_exit=$remote_tag_exit"
+    
+    if ! [ "$remote_tag_exit" != "0" ]; then
+        2>&1 echo "Error fetching git remote tag"
+        return "$remote_tag_exit"
+    elif [ "0" -eq "$remote_tag_count" ]; then
         return 1
     else
         return 0
