@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+MONITOR_DIR="${BASH_SOURCE%/*}/../"
+
 help () { cat <<EOF
 Check whether the current npm package.json version is allowed.
 
